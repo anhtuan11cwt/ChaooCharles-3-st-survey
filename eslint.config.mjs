@@ -12,6 +12,22 @@ const eslintConfig = defineConfig([
 		"out/**",
 		"build/**",
 		"next-env.d.ts",
+		// .gitignore patterns:
+		"**/node_modules/**",
+		"**/.pnp/**",
+		"**/.pnp.*",
+		"**/.yarn/**",
+		"**/coverage/**",
+		"**/.DS_Store",
+		"**/*.pem",
+		"**/npm-debug.log*",
+		"**/yarn-debug.log*",
+		"**/yarn-error.log*",
+		"**/.pnpm-debug.log*",
+		"**/.env*",
+		"**/.vercel/**",
+		"**/*.tsbuildinfo",
+		"**/lib/generated/prisma/**",
 	]),
 ]);
 
