@@ -662,7 +662,12 @@ export default function AddHotelForm({ hotel }: AddHotelFormProps) {
           </h3>
           <div className="grid grid-cols-1 2xl:grid-cols-2 gap-6">
             {hotel.rooms.map((room) => (
-              <RoomCard hotel={hotel} key={room.id} room={room} />
+              <RoomCard
+                bookings={room.booking}
+                hotel={hotel}
+                key={room.id}
+                room={room}
+              />
             ))}
           </div>
         </>

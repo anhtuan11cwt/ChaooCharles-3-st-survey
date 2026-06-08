@@ -35,9 +35,20 @@ export async function POST(request: Request) {
         },
       });
       if (existingBooking) {
-        const paymentIntent =
-          await stripe.paymentIntents.retrieve(paymentIntentId);
-        return NextResponse.json({ paymentIntent });
+        const updatedIntent = await stripe.paymentIntents.update(
+          paymentIntentId,
+          { amount: bookingData.totalPrice },
+        );
+        await prisma.booking.update({
+          data: {
+            breakfastIncluded: bookingData.breakfastIncluded,
+            endDate: new Date(bookingData.endDate),
+            startDate: new Date(bookingData.startDate),
+            totalPrice: bookingData.totalPrice,
+          },
+          where: { id: existingBooking.id },
+        });
+        return NextResponse.json({ paymentIntent: updatedIntent });
       }
     }
 

@@ -11,8 +11,10 @@ import {
 import { MdDryCleaning, MdLocalParking, MdRestaurant } from "react-icons/md";
 import type { HotelWithRooms } from "@/components/hotel/addHotelForm";
 import RoomCard from "@/components/room/room-card";
+import type { Booking } from "@/lib/generated/prisma/client";
 
 interface HotelDetailsClientProps {
+  bookings: Booking[];
   hotel: HotelWithRooms;
 }
 
@@ -31,7 +33,10 @@ const amenitiesList = [
   { available: false, icon: Coffee, label: "Quán cà phê" },
 ] as const;
 
-export default function HotelDetailsClient({ hotel }: HotelDetailsClientProps) {
+export default function HotelDetailsClient({
+  hotel,
+  bookings,
+}: HotelDetailsClientProps) {
   const getAmenities = () => {
     return amenitiesList.map((amenity) => ({
       ...amenity,
@@ -119,7 +124,12 @@ export default function HotelDetailsClient({ hotel }: HotelDetailsClientProps) {
           <h2 className="text-lg font-semibold mb-4">Phòng khách sạn</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {hotel.rooms.map((room) => (
-              <RoomCard hotel={hotel} key={room.id} room={room} />
+              <RoomCard
+                bookings={bookings}
+                hotel={hotel}
+                key={room.id}
+                room={room}
+              />
             ))}
           </div>
         </div>

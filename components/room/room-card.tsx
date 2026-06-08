@@ -48,11 +48,16 @@ import { Separator } from "@/components/ui/separator";
 import type { Booking, Room } from "@/lib/generated/prisma/client";
 
 interface RoomCardProps {
+  bookings?: Booking[];
   hotel: HotelWithRooms;
   room: Room & { booking: Booking[] };
 }
 
-export default function RoomCard({ hotel, room }: RoomCardProps) {
+export default function RoomCard({
+  hotel,
+  room,
+  bookings = [],
+}: RoomCardProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(false);
@@ -67,13 +72,12 @@ export default function RoomCard({ hotel, room }: RoomCardProps) {
     const days: Date[] = [];
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    if (room.booking) {
-      for (const booking of room.booking) {
-        const start = new Date(booking.startDate);
-        const end = new Date(booking.endDate);
-        const bookedDays = eachDayOfInterval({ end, start });
-        days.push(...bookedDays);
-      }
+    const roomBookings = bookings.filter((b) => b.roomId === room.id);
+    for (const booking of roomBookings) {
+      const start = new Date(booking.startDate);
+      const end = new Date(booking.endDate);
+      const bookedDays = eachDayOfInterval({ end, start });
+      days.push(...bookedDays);
     }
     if (date?.from) {
       const fromTime = date.from.getTime();
@@ -88,7 +92,7 @@ export default function RoomCard({ hotel, room }: RoomCardProps) {
       }
     }
     return days;
-  }, [room.booking, date]);
+  }, [bookings, room.id, date]);
 
   const days = useMemo(() => {
     if (date?.from && date?.to) {

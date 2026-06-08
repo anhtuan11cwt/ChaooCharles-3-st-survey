@@ -1,3 +1,4 @@
+import { getBookings } from "@/actions/get-bookings";
 import { getHotelById } from "@/actions/getHotelById";
 import HotelDetailsClient from "@/components/hotel/hotel-details-client";
 
@@ -8,6 +9,7 @@ interface HotelDetailsProps {
 export default async function HotelDetails(props: HotelDetailsProps) {
   const { hotelId } = await props.params;
   const hotel = await getHotelById(hotelId);
+  const bookings = await getBookings(hotelId);
 
   if (!hotel) {
     return (
@@ -19,5 +21,5 @@ export default async function HotelDetails(props: HotelDetailsProps) {
     );
   }
 
-  return <HotelDetailsClient hotel={hotel} />;
+  return <HotelDetailsClient bookings={bookings} hotel={hotel} />;
 }
