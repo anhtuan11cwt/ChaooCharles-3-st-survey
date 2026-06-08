@@ -1,6 +1,7 @@
 "use client";
 
 import axios from "axios";
+import { differenceInCalendarDays, eachDayOfInterval } from "date-fns";
 import {
   Bed,
   BedDouble,
@@ -18,11 +19,13 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import type { DateRange } from "react-day-picker";
 import toast from "react-hot-toast";
 import AmenityItem from "@/components/amenity-item";
 import type { HotelWithRooms } from "@/components/hotel/addHotelForm";
 import AddRoomForm from "@/components/room/add-room-form";
+import DateRangePicker from "@/components/room/date-range-picker";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -32,6 +35,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -40,11 +44,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import type { Room } from "@/lib/generated/prisma/client";
+import type { Booking, Room } from "@/lib/generated/prisma/client";
 
 interface RoomCardProps {
   hotel: HotelWithRooms;
-  room: Room;
+  room: Room & { booking: Booking[] };
 }
 
 export default function RoomCard({ hotel, room }: RoomCardProps) {
@@ -52,8 +56,58 @@ export default function RoomCard({ hotel, room }: RoomCardProps) {
   const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const [date, setDate] = useState<DateRange | undefined>();
+  const [includeBreakfast, setIncludeBreakfast] = useState(false);
 
   const isHotelDetailsPage = pathname.includes("hotel-details");
+
+  const disabledDates = useMemo(() => {
+    const days: Date[] = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (room.booking) {
+      for (const booking of room.booking) {
+        const start = new Date(booking.startDate);
+        const end = new Date(booking.endDate);
+        const bookedDays = eachDayOfInterval({ end, start });
+        days.push(...bookedDays);
+      }
+    }
+    if (date?.from) {
+      const fromTime = date.from.getTime();
+      const allDays = eachDayOfInterval({
+        end: new Date(today.getTime() + 365 * 86400000),
+        start: today,
+      });
+      for (const d of allDays) {
+        if (d.getTime() < fromTime) {
+          days.push(d);
+        }
+      }
+    }
+    return days;
+  }, [room.booking, date]);
+
+  const days = useMemo(() => {
+    if (date?.from && date?.to) {
+      const dayCount = differenceInCalendarDays(date.to, date.from);
+      return dayCount > 0 ? dayCount : 1;
+    }
+    return 1;
+  }, [date]);
+
+  const totalPrice = useMemo(() => {
+    if (date?.from && date?.to) {
+      const dayCount = differenceInCalendarDays(date.to, date.from);
+      if (dayCount > 0) {
+        if (includeBreakfast && room.breakfastPrice > 0) {
+          return dayCount * room.roomPrice + dayCount * room.breakfastPrice;
+        }
+        return dayCount * room.roomPrice;
+      }
+    }
+    return room.roomPrice;
+  }, [date, room.roomPrice, room.breakfastPrice, includeBreakfast]);
 
   const handleDialogOpen = useCallback(() => {
     setOpen((prev) => !prev);
@@ -184,7 +238,42 @@ export default function RoomCard({ hotel, room }: RoomCardProps) {
           )}
         </div>
       </CardContent>
-      {!isHotelDetailsPage && (
+      {isHotelDetailsPage ? (
+        <CardFooter className="flex flex-col gap-6">
+          <div className="flex flex-col gap-2 w-full">
+            <p className="text-sm font-semibold">
+              Chọn ngày bạn muốn lưu trú tại phòng này
+            </p>
+            <DateRangePicker
+              date={date}
+              disabled={disabledDates}
+              setDate={setDate}
+            />
+          </div>
+          {room.breakfastPrice > 0 && (
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="breakfast"
+                onCheckedChange={(value) => setIncludeBreakfast(!!value)}
+              />
+              <label
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                htmlFor="breakfast"
+              >
+                Bạn có muốn dùng bữa sáng mỗi ngày không?
+              </label>
+            </div>
+          )}
+          <div className="flex gap-4 w-full">
+            <p className="font-bold">
+              Tổng: <span className="font-bold">{totalPrice}</span>
+            </p>
+            <p className="font-bold">
+              Số ngày: <span className="font-bold">{days}</span>
+            </p>
+          </div>
+        </CardFooter>
+      ) : (
         <CardFooter className="gap-4">
           <Button disabled={isLoading} onClick={handleDialogOpen} type="button">
             <Pencil className="mr-2 h-4 w-4" />

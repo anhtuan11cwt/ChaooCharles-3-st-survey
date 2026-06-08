@@ -11,7 +11,7 @@ export const getHotels = async (searchParams: SearchParams = {}) => {
     const { title, state, city } = searchParams;
 
     const hotels = await prisma.hotel.findMany({
-      include: { rooms: true },
+      include: { rooms: { include: { booking: true } } },
       where: {
         ...(title && { title: { contains: title } }),
         ...(state && { state }),

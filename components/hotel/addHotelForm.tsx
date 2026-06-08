@@ -56,9 +56,11 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import useLocation, { type District, type Province } from "@/hooks/useLocation";
-import type { Hotel, Room } from "@/lib/generated/prisma/client";
+import type { Booking, Hotel, Room } from "@/lib/generated/prisma/client";
 
-export type HotelWithRooms = Hotel & { rooms: Room[] };
+export type HotelWithRooms = Hotel & {
+  rooms: (Room & { booking: Booking[] })[];
+};
 
 interface AddHotelFormProps {
   hotel: HotelWithRooms | null;

@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 export async function getHotelById(hotelId: string) {
   try {
     const hotel = await prisma.hotel.findUnique({
-      include: { rooms: true },
+      include: { rooms: { include: { booking: true } } },
       where: { id: hotelId },
     });
 
