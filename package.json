@@ -62,6 +62,7 @@
     "format": "biome format --write",
     "lint": "eslint",
     "lint2": "biome lint --write",
+    "postinstall": "prisma generate",
     "predev": "npx kill-port 3000",
     "start": "next start"
   },

@@ -14,6 +14,7 @@ const publicRoutes = [
   "/sign-up",
   "/api/auth/register",
   "/api/auth/login",
+  "/hotel-details",
 ];
 
 export async function proxy(request: NextRequest) {
@@ -37,7 +38,11 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  if (publicRoutes.some((route) => pathname === route)) {
+  if (
+    publicRoutes.some(
+      (route) => pathname === route || pathname.startsWith(`${route}/`),
+    )
+  ) {
     return NextResponse.next();
   }
 
