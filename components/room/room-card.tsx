@@ -6,6 +6,7 @@ import {
   Bed,
   BedDouble,
   Building2,
+  Check,
   CloudRain,
   Loader2,
   Mountain,
@@ -55,6 +56,7 @@ export default function RoomCard({ hotel, room }: RoomCardProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(false);
+  const [bookingIsLoading, setBookingIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState<DateRange | undefined>();
   const [includeBreakfast, setIncludeBreakfast] = useState(false);
@@ -130,6 +132,45 @@ export default function RoomCard({ hotel, room }: RoomCardProps) {
     },
     [router],
   );
+
+  const handleBookRoom = useCallback(async () => {
+    if (!date?.from || !date?.to) {
+      toast.error("Vui lòng chọn ngày đặt phòng");
+      return;
+    }
+    setBookingIsLoading(true);
+    try {
+      const bookingData = {
+        breakfastIncluded: includeBreakfast,
+        endDate: date.to,
+        hotelId: hotel.id,
+        hotelOwnerId: hotel.userId,
+        roomId: room.id,
+        startDate: date.from,
+        totalPrice,
+      };
+      const res = await axios.post("/api/create-payment-intent", {
+        booking: bookingData,
+        paymentIntentId: null,
+      });
+      if (res.status === 200) {
+        toast.success("Đã tạo đơn đặt phòng");
+        router.push("/book-room");
+      }
+    } catch {
+      toast.error("Đã xảy ra lỗi");
+    } finally {
+      setBookingIsLoading(false);
+    }
+  }, [
+    date,
+    includeBreakfast,
+    totalPrice,
+    room.id,
+    hotel.id,
+    hotel.userId,
+    router,
+  ]);
 
   return (
     <Card>
@@ -272,6 +313,18 @@ export default function RoomCard({ hotel, room }: RoomCardProps) {
               Số ngày: <span className="font-bold">{days}</span>
             </p>
           </div>
+          <Button
+            disabled={bookingIsLoading}
+            onClick={handleBookRoom}
+            type="button"
+          >
+            {bookingIsLoading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Check className="mr-2 h-4 w-4" />
+            )}
+            {bookingIsLoading ? "Đang xử lý..." : "Đặt phòng"}
+          </Button>
         </CardFooter>
       ) : (
         <CardFooter className="gap-4">
