@@ -60,7 +60,11 @@ export default function RoomPaymentForm({
   };
 
   return (
-    <form className="mt-8 space-y-6" id="payment-form" onSubmit={handleSubmit}>
+    <form
+      className="mt-8 mb-4 space-y-6"
+      id="payment-form"
+      onSubmit={handleSubmit}
+    >
       <AddressElement options={{ mode: "billing" }} />
       <PaymentElement options={{ layout: "tabs" }} />
       <div className="space-y-2 text-sm">
