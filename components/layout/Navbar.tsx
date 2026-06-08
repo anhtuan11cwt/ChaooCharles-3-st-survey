@@ -2,7 +2,7 @@
 
 import { Menu, X } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import Container from "@/components/Container";
 import NavMenu from "@/components/layout/nav-menu";
@@ -51,7 +51,9 @@ export default function Navbar() {
           </button>
 
           <div className="hidden items-center gap-3 sm:flex">
-            <SearchInput />
+            <Suspense>
+              <SearchInput />
+            </Suspense>
             <ModeToggle />
             {user ? (
               <>
@@ -99,7 +101,9 @@ export default function Navbar() {
         {mobileOpen && (
           <div className="flex flex-col items-start gap-3 pb-4 pt-2 sm:hidden">
             <div className="w-full">
-              <SearchInput />
+              <Suspense>
+                <SearchInput />
+              </Suspense>
             </div>
             {user ? (
               <div className="flex w-full items-center justify-between">
