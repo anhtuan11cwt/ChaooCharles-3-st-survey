@@ -39,7 +39,7 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="sticky top-0 border-b border-primary/10 bg-secondary">
+    <nav className="sticky top-0 z-50 border-b border-primary/10 bg-secondary/100 backdrop-blur-md">
       <Container>
         <div className="flex items-center justify-between">
           <button
