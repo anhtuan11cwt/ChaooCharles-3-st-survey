@@ -76,13 +76,15 @@ export default function HotelDetailsClient({
 
   return (
     <div className="py-8 space-y-8">
-      <div className="aspect-square md:aspect-video relative w-full h-[200px] md:h-[400px] rounded-lg overflow-hidden">
+      <div className="w-full rounded-lg overflow-hidden">
         <Image
           alt={hotel.title}
-          className="object-cover"
-          fill
-          sizes="(max-width: 768px) 100vw, 50vw"
+          className="w-full h-auto object-contain"
+          height={0}
+          sizes="100vw"
           src={hotel.image}
+          style={{ height: "auto", width: "100%" }}
+          width={0}
         />
       </div>
 
